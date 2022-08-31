@@ -1,0 +1,18 @@
+convert ply/pnt/pcd to las
+read ply or las apply semantica segmentation to identify the lables of each points, using RANDLA-net similar neural network
+using points mask to filter the building out of the entire scene. 
+using nearest neighbour search and dbscan to cluster the buildings in the filtered points
+do reconstrcution based on these points using whatever algorithem
+save the reconstructed 3d models into backend, and save their metadata into database
+(center points, classfication, vertex, faces, district(orignal data source and related point cloud))
+
+point cloud can be written into database or saved as ply/laz
+
+
+for front end visualization:
+convert 3dmodels into 3dtiles
+using Cesium 3d-tiles
+
+
+wine txt2las.exe -i /mnt/Git/SensatUrban/output/L002.txt -o /mnt/Git/SensatUrban/output/L002.laz -parse xyzRGB -utm 17T
+

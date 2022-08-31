@@ -46,21 +46,25 @@ Fence 8
 
 
 if DATASET == "TORONTO3D":
-    pc_path = "/mnt/Git/Open3D-ML/data/Toronto3D/L002.ply"
+    pc_path = "./Data/Toronto3D/L002.ply"
     random_sample_ratio = 3
     building_lable = 4
     eps = 5
     UTM_OFFSET = [627285, 4841948, 0]
+    print("start to read point cloud")
 
     data = o3d.t.io.read_point_cloud(pc_path).point
+    #data_io = o3d.io.read_point_cloud(pc_path)
+    #print(data["positions"])
     points = data["positions"].numpy()
-    points = points - UTM_OFFSET
-    points = np.float32(points)
+    #points = np.asarray(data_io.points)
+    points = np.float32(points - UTM_OFFSET)
+    #feat = np.asarray(data_io.colors).astype(np.float32)
     feat = data["colors"].numpy().astype(np.float32)
     labels = data['scalar_Label'].numpy().astype(np.int32).reshape((-1,))
 
 elif DATASET == "SENSATURBAN":
-    pc_path = "./Dataset/SensatUrban/original_block_ply/birmingham_block_7.ply"
+    pc_path = "./Data/SensatUrban/original_block_ply/birmingham_block_7.ply"
     building_lable = 2
     random_sample_ratio = 3
     eps = 1
@@ -76,8 +80,8 @@ elif DATASET == "SEMANTIC3D":
     random_sample_ratio = 5
     eps = 0.02
 
-    pc_path = "/mnt/Git/Open3D-ML/data/Semantic3D/neugasse_station1_xyz_intensity_rgb.txt"
-    label_path = "/mnt/Git/Open3D-ML/data/Semantic3D/neugasse_station1_xyz_intensity_rgb.labels"
+    pc_path = "./data/Semantic3D/neugasse_station1_xyz_intensity_rgb.txt"
+    label_path = "./data/Semantic3D/neugasse_station1_xyz_intensity_rgb.labels"
     points = read_points(pc_path)
     print(points.shape)
     labels = read_labels(label_path)
