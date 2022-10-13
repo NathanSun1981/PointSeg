@@ -1,4 +1,5 @@
 from cProfile import label
+from hashlib import new
 from turtle import color
 import open3d as o3d
 from os.path import join
@@ -23,7 +24,7 @@ class Plot:
         return colors
 
     @staticmethod
-    def draw_pc(pc_xyzrgb, label, name): 
+    def draw_pc(pc_xyzrgb): 
         pc = o3d.geometry.PointCloud()
         print("setting points in o3d....")
         pc.points = o3d.utility.Vector3dVector(pc_xyzrgb[:, 0:3])
@@ -130,7 +131,6 @@ class Plot:
         print(f"point cloud has {max_label + 1} clusters")
 
         #Plot.display_inlier_outlier(pc, ind, ori_color)  
-        pc_list = []
 
         if not sep_vis:
             if not ori_color:
@@ -139,18 +139,40 @@ class Plot:
                 pc.colors = o3d.utility.Vector3dVector(colors[:, :3])
             o3d.visualization.draw_geometries([pc])
         else:
+            new_pc = []
             for label in sem_labels:
                 print("choose points with label %s" % label)
                 if label > 0:
                     mask = (labels == label)
                     sem_pc = pc_xyzrgb[mask]
-                    pc_list.append(sem_pc)
                     #print(pc_xyzrgb[mask].shape)
                     #Plot.draw_pc(sem_pc, label, name)
                     print("label = ", label)     
                     if do_recon:
-                        Plot.reconstruction(sem_pc, label, name)                   
-                                            
+                        Plot.reconstruction(sem_pc, label, name) 
+
+                    if new_pc == []:
+                        new_pc = sem_pc
+                    else:
+                        new_pc = np.concatenate((new_pc, sem_pc), axis=0)
+                
+            print (len(new_pc))
+            print(new_pc)
+        
+
+            pcd = o3d.geometry.PointCloud()
+            pcd.points = o3d.utility.Vector3dVector(new_pc[:,:3])
+            if np.max(new_pc[:, 3:6]) > 20:  ## 0-255
+                pcd.colors = o3d.utility.Vector3dVector(new_pc[:, 3:6] / 255.)
+            else:
+                pcd.colors = o3d.utility.Vector3dVector(new_pc[:, 3:6])
+
+            o3d.io.write_point_cloud("./output/{}_pointcloud.ply".format(name), pcd)
+            o3d.visualization.draw_geometries([pc])
+
+            #save new point clouds
+
+
         return sem_labels
     
  

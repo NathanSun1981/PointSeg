@@ -1,4 +1,5 @@
 from enum import Enum
+from pickle import FALSE
 from re import sub
 from turtle import color, shape
 from tool import DataProcessing as DP
@@ -15,8 +16,8 @@ import laspy as lp
 #print(pcd)
 #print(np.asarray(pcd.points))
 
-DATASET = "TORONTO3D"  #"SENSATURBAN" "TORONTO3D" "SEMANTIC3D"
-sampling = True
+DATASET = "SEMANTIC3D"  #"SENSATURBAN" "TORONTO3D" "SEMANTIC3D"
+sampling = False
 
 
 def read_points(f):
@@ -64,7 +65,7 @@ if DATASET == "TORONTO3D":
     labels = data['scalar_Label'].numpy().astype(np.int32).reshape((-1,))
 
 elif DATASET == "SENSATURBAN":
-    pc_path = "./Data/SensatUrban/original_block_ply/birmingham_block_7.ply"
+    pc_path = "./Data/Toronto3D/L005.ply"
     building_lable = 2
     random_sample_ratio = 3
     eps = 1
@@ -80,16 +81,20 @@ elif DATASET == "SEMANTIC3D":
     random_sample_ratio = 5
     eps = 0.02
 
-    pc_path = "./data/Semantic3D/neugasse_station1_xyz_intensity_rgb.txt"
-    label_path = "./data/Semantic3D/neugasse_station1_xyz_intensity_rgb.labels"
+    pc_path = "../Open3D-ML/data/Semantic3D/bildstein_station1_xyz_intensity_rgb_ori.txt"
+    label_path = "../Open3D-ML/data/Semantic3D/bildstein_station1_xyz_intensity_rgb.labels"
     points = read_points(pc_path)
     print(points.shape)
     labels = read_labels(label_path)
     print(labels.shape)
     pc_xyzrgb = np.vstack((points['x'], points['y'], points['z'], points['r'], points['g'], points['b'])).T
     points = pc_xyzrgb[:, 0:3]
-    feat = pc_xyzrgb[: 3:6] 
+    print(points.shape)
+    feat = pc_xyzrgb[:, 3:6] 
+    print(feat.shape)
     labels = labels.astype(int)
+
+    print(labels.shape)
 
 else:
 
@@ -98,6 +103,7 @@ else:
 
 
 data = {'point': points, 'feat': feat, 'label': labels}
+
 
 """ 
 SensatUrban Lables:
@@ -138,7 +144,9 @@ masked_pc = sub_pc[mask]
 
 print(masked_pc.shape)
 
-sem_labels = Plot.seg_pc(DATASET, masked_pc, eps = eps, min_points = 100, sep_vis = True, ori_color=False, do_recon = True)
+Plot.draw_pc(masked_pc)
+
+#sem_labels = Plot.seg_pc(DATASET, masked_pc, eps = eps, min_points = 500, sep_vis = False, ori_color=False, do_recon = True)
 
 
 

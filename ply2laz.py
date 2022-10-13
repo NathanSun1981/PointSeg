@@ -12,8 +12,9 @@ def main(argv):
     outputfile = ''
     utm = [0,0,0]
     need_labels = False
+    need_color = False
     try:
-        opts, args = getopt.getopt(argv,"hi:o:lu:",["ifile=","ofile=","utm="])
+        opts, args = getopt.getopt(argv,"hi:o:lu:c",["ifile=","ofile=","utm="])
     except getopt.GetoptError:
         print ('test.py -i <inputfile> -o <outputfile>')
         sys.exit(2)
@@ -27,6 +28,8 @@ def main(argv):
             outputfile = arg
         elif opt in ("-l", "--lables"):
             need_labels = True
+        elif opt in ("-c", "--colors"):
+            need_color = True
         elif opt in ("-u", "--utm"):          
             utm = arg.split(',')
             print(list(map(int, utm)))
@@ -50,9 +53,15 @@ def main(argv):
     feat = data["colors"].numpy().astype(np.float32)
     if need_labels:
         labels = data['scalar_Label'].numpy().astype(np.int32)
-        txt_data = np.concatenate((np.asarray(points), np.asarray(feat), np.asarray(labels)), axis=1)
+        if need_color:
+            txt_data = np.concatenate((np.asarray(points), np.asarray(feat), np.asarray(labels)), axis=1)
+        else:
+            txt_data = np.concatenate((np.asarray(points), np.asarray(labels)), axis=1)
     else:
-        txt_data = np.concatenate((np.asarray(points), np.asarray(feat)), axis=1)
+        if need_color:
+            txt_data = np.concatenate((np.asarray(points), np.asarray(feat)), axis=1)
+        else:
+            txt_data = np.asarray(points)
     """ points = np.float32(pcd.point["positions"].numpy())
     colors = np.int32(pcd.point["colors"].numpy())
     labels = np.int32(pcd.point["class"].numpy()) """
